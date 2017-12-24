@@ -89,6 +89,12 @@ class FeatureEngineering:
         del self.trainData['Cabin']
         del self.testData['Cabin']
 
+        del self.trainData['Age']
+        del self.testData['Age']
+
+        del self.trainData['Fare']
+        del self.testData['Fare']
+
 
     def __transforamColumns(self):
         encoder = preprocessing.LabelEncoder()
@@ -135,12 +141,29 @@ class FeatureEngineering:
     def __createBinFare(self):
         bins = [-10, 128, 256, 384, 513]
         group_names = [1, 2, 3, 4]
-        self.testData['Bin_Fare'] = pd.cut(self.testData['FareAndLinear'], bins, labels=group_names)
         self.trainData['Bin_Fare'] = pd.cut(self.trainData['FareAndLinear'], bins, labels=group_names)
+        self.testData['Bin_Fare'] = pd.cut(self.testData['FareAndLinear'], bins, labels=group_names)
 
 
+    def extractPersonTitle(self):
+        encoder = preprocessing.LabelEncoder()
+        self.trainData['PersonTitle'] = encoder.fit_transform(self.trainData['Name'].str.split(', ').str[1].str.split('\.').str[0])
+        self.testData['PersonTitle'] = encoder.fit_transform(self.testData['Name'].str.split(', ').str[1].str.split('\.').str[0])
+
+
+    """
+    Extract the information of the family
+    """
     def calculateFamily(self):
-        print(self.trainData['SibSp'] != 0)
+        # Family true|false
+        self.trainData['Family'] = np.logical_or(self.trainData['SibSp'] != 0,
+                                                 self.trainData['Parch'] != 0)
+        self.testData['Family'] = np.logical_or(self.testData['SibSp'] != 0,
+                                                self.testData['Parch'] != 0)
+        # Number of Family
+        self.trainData['#Family'] = self.trainData['SibSp'] + self.trainData['Parch']
+        self.testData['#Family'] = self.testData['SibSp'] + self.testData['Parch']
+
 
     def printNaNs(self):
         print("---------- Training Data ----------")

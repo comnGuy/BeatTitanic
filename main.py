@@ -2,7 +2,7 @@ from classes.FeatureEngineering import FeatureEngineering
 from classes.ExplorateDataFrame import ExplorateDataFrame
 import pandas as pd
 
-ed = ExplorateDataFrame()
+
 
 
 # Read CSV
@@ -10,15 +10,19 @@ originTrainData = pd.read_csv('data/origin/train.csv')
 originTestData = pd.read_csv('data/origin/test.csv')
 
 
+# At the beginning we try to extract new features out of the data set
+# for the training and the test set.
 
-# Feature Engineering
+
+# Initialise the feature enginnering
+# @param trainings data
+# @param tests data
+# @param features for the linear model. Here you can add or remove features to try to get better results.
 featureEngineering = FeatureEngineering({'originTrainData': originTrainData,
                                           'originTestData': originTestData,
                                           'featuresLinearModel': ['Pclass', 'Sex', 'SibSp', 'Parch', 'Embarked']})
 
-# Remove Columns
-featureEngineering.removeUnnecessaryColumns()
-# Predict the empty cells
+# First we try to predict the empty cells with our given featuresLinearModel
 featureEngineering.linearPredictEmptyCells()
 # Combine the linear information with the original data (Age, Fare)
 featureEngineering.combineNaNCellWithLinearPrediction()
@@ -28,10 +32,15 @@ featureEngineering.extractInformations()
 featureEngineering.createBins()
 # Calcute family
 featureEngineering.calculateFamily()
+# Extract the title of the name
+featureEngineering.extractPersonTitle()
+# Remove Columns
+featureEngineering.removeUnnecessaryColumns()
 #Show sum of entries with NaNs
 featureEngineering.printNaNs()
 
 #print(featureEngineering.trainData)
+
 
 
 

@@ -18,6 +18,9 @@ class FeatureEngineering:
 
         self.trainData = args['originTrainData']
         self.testData = args['originTestData']
+        self.originGenderSubmission = args['originGenderSubmission']
+
+        self.testData['Survived'] = self.originGenderSubmission['Survived']
 
         self.featureLinearModel = args['featuresLinearModel']
 
@@ -74,16 +77,19 @@ class FeatureEngineering:
         self.trainData['FareAndLinear'].fillna(self.trainData['Linear_Fare'], inplace=True)
 
 
+    def normalize(self):
+        normalizeColumns = { 'AgeAndLinearNormalize': 'AgeAndLinear',
+                             'FareAndLinearNormalize': 'FareAndLinear',
+                             'LinearAgeNormalize': 'Linear_Age',
+                             'LinearFareNormalize': 'Linear_Fare'}
 
+        for newColumn in normalizeColumns:
+            self.testData[newColumn] = (self.testData[normalizeColumns[newColumn]] - self.testData[normalizeColumns[newColumn]].min()) / \
+                                                     (self.testData[normalizeColumns[newColumn]].max() - self.testData[normalizeColumns[newColumn]].min())
 
-    #self.dataframe = dataframe
-        #self.encoder = preprocessing.LabelEncoder()
+            self.trainData[newColumn] = (self.trainData[normalizeColumns[newColumn]] - self.trainData[normalizeColumns[newColumn]].min()) / \
+                                                      (self.trainData[normalizeColumns[newColumn]].max() - self.trainData[normalizeColumns[newColumn]].min())
 
-    #def initFeatureEngineering(self):
-    #    pass
-
-    #def renameColumns(self, renameList):
-    #    self.dataframe.columns = renameList
 
     def removeUnnecessaryColumns(self):
         del self.trainData['Cabin']
@@ -94,6 +100,36 @@ class FeatureEngineering:
 
         del self.trainData['Fare']
         del self.testData['Fare']
+
+        del self.trainData['Name']
+        del self.testData['Name']
+
+        del self.trainData['Ticket']
+        del self.testData['Ticket']
+
+        # Delete for Feature Selections, cause there are negative values
+        del self.trainData['AgeAndLinear']
+        del self.testData['AgeAndLinear']
+        del self.trainData['FareAndLinear']
+        del self.testData['FareAndLinear']
+        del self.trainData['Linear_Age']
+        del self.testData['Linear_Age']
+        del self.trainData['Linear_Fare']
+        del self.testData['Linear_Fare']
+
+    def removeVotedFeatures(self):
+        del self.trainData['Bin_Age']
+        del self.testData['Bin_Age']
+        del self.trainData['Bin_Fare']
+        del self.testData['Bin_Fare']
+        del self.trainData['Parch']
+        del self.testData['Parch']
+        del self.trainData['SibSp']
+        del self.testData['SibSp']
+        del self.trainData['Family']
+        del self.testData['Family']
+        del self.trainData['#Family']
+        del self.testData['#Family']
 
 
     def __transforamColumns(self):
@@ -107,13 +143,10 @@ class FeatureEngineering:
         self.trainData['Embarked'] = encoder.fit_transform(self.trainData['Embarked'].fillna('S'))
         self.testData['Embarked'] = encoder.fit_transform(self.testData['Embarked'].fillna('S'))
 
-        #self.dataframe['Embarked'] = encoder.fit_transform(self.testData['Embarked'].fillna('-1'))
-
-        #self.dataframe['Sex.name'] = self.encoder.fit_transform(self.dataframe['Sex.name'].fillna('-1'))
-        #dataset[i] = encoder.fit_transform(dataset[i].fillna('-1'))
 
     def extractInformations(self):
         self.__extractSex()
+
 
     def __extractSex(self):
         encoder = preprocessing.LabelEncoder()
@@ -121,6 +154,7 @@ class FeatureEngineering:
         self.testData['Male'] = encoder.fit_transform(self.testData['Sex'] != 0)
         self.trainData['Female'] = encoder.fit_transform(self.trainData['Sex'] != 1)
         self.testData['Female'] = encoder.fit_transform(self.testData['Sex'] != 1)
+
 
     def createBins(self):
         self.__createBinAge()

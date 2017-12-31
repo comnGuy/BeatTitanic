@@ -1,5 +1,5 @@
 import pandas as pd
-import numpy
+import numpy as np, numpy
 from sklearn.feature_selection import SelectKBest
 from sklearn.feature_selection import chi2
 import matplotlib.pyplot as plt
@@ -10,6 +10,8 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.decomposition import PCA
 
 from sklearn.ensemble import ExtraTreesClassifier
+
+from sklearn.cross_validation import KFold
 
 
 
@@ -66,7 +68,36 @@ class FeatureSelection:
             feature_important = feature_important.sort_values(by=[columns], ascending=ascending)
         feature_important.plot(kind='barh', stacked=True, color=['#FF8680'], grid=False, figsize=(8, 5))
 
+    def k_fold_to_get_acc(self, clf, x_split, y_split):
+        kf = KFold(len(y_split), n_folds=10)
+        acc_t = 0
+        acc_v = 0
+        for train, valid in kf:
+            x_train, y_train = x_split.iloc[train], y_split.iloc[train]
+            x_valid, y_valid = x_split.iloc[valid], y_split.iloc[valid]
 
+            clf = clf.fit(x_train, y_train)
+            pred = clf.predict(x_train)
+            acc_t += np.mean(pred == y_train)  # accuracy on train
+            pred = clf.predict(x_valid)
+            acc_v += np.mean(pred == y_valid)  # accuracy on validation
+        return acc_t * 10, acc_v * 10
+
+    def ablative_analysis(self, clf, train, feats):
+        x, y = train.drop('Survived', 1), train["Survived"]
+        acc = {}
+        dropped = []
+        print('all reserved - %%%.2f  %%%.2f' % self.k_fold_to_get_acc(clf, x, y))
+        while (len(feats) > 0):
+            item = feats[0]
+            feats = feats[1:]
+            dropped.append(item)
+            acc[item] = self.k_fold_to_get_acc(clf, x.drop(dropped, 1), y)
+        for key in acc:
+            acc_t, acc_v = acc[key]
+            print('del %s -> %%%.2f  %%%.2f' % (key, acc_t, acc_v))
+        print('Remains:')
+        print(list(x.drop(dropped, 1).columns))
 
 
     def showPlots(self):

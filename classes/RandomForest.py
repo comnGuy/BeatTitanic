@@ -5,7 +5,7 @@ from sklearn.metrics import accuracy_score
 from pathlib import Path
 from sklearn.model_selection import GridSearchCV
 import matplotlib.pyplot as plt
-
+from sklearn import svm, preprocessing
 
 
 class RandomForest:
@@ -15,7 +15,9 @@ class RandomForest:
     def __init__(self, args):
         self.args = args
 
-        self.trainX = self.args['trainData'].drop(['Survived', 'PassengerId'], axis=1)
+        self.trainX = preprocessing.scale(self.args['trainData'].drop(['Survived', 'PassengerId'], axis=1))
+
+        #self.trainX = self.args['trainData'].drop(['Survived', 'PassengerId'], axis=1)
         self.trainY = self.args['trainData']['Survived']
         self.columnNames = self.args['trainData'].drop(['Survived', 'PassengerId'], axis=1).columns
 

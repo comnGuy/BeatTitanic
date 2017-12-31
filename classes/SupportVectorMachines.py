@@ -1,11 +1,11 @@
-from sklearn import svm
+from sklearn import svm, preprocessing
 from sklearn.model_selection import GridSearchCV
 
 class SupportVectorMachines:
     def __init__(self, args):
         self.args = args
 
-        self.trainX = self.args['trainData'].drop(['Survived', 'PassengerId'], axis=1)
+        self.trainX = preprocessing.scale(self.args['trainData'].drop(['Survived', 'PassengerId'], axis=1))
         self.trainY = self.args['trainData']['Survived']
 
     def findBestParameters(self):

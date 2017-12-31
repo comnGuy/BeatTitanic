@@ -130,6 +130,15 @@ class FeatureEngineering:
         del self.testData['Family']
         del self.trainData['#Family']
         del self.testData['#Family']
+        del self.trainData['Male']
+        del self.testData['Male']
+        del self.trainData['Female']
+        del self.testData['Female']
+        del self.trainData['Embarked']
+        del self.testData['Embarked']
+        del self.trainData['PersonTitle']
+        del self.testData['PersonTitle']
+
 
 
     def __transforamColumns(self):
@@ -166,8 +175,8 @@ class FeatureEngineering:
     def __createBinAge(self):
         bins = [-5, 20, 40, 60, 80]
         group_names = [1, 2, 3, 4]
-        self.testData['Bin_Age'] = pd.cut(self.testData['AgeAndLinear'], bins, labels=group_names)
-        self.trainData['Bin_Age'] = pd.cut(self.trainData['AgeAndLinear'], bins, labels=group_names)
+        self.testData['Bin_Age'] = pd.cut(self.testData['AgeAndLinear'], bins, labels=group_names).astype(int)
+        self.trainData['Bin_Age'] = pd.cut(self.trainData['AgeAndLinear'], bins, labels=group_names).astype(int)
 
     """
     Create a bin für the linear combined ages
@@ -197,6 +206,28 @@ class FeatureEngineering:
         # Number of Family
         self.trainData['#Family'] = self.trainData['SibSp'] + self.trainData['Parch']
         self.testData['#Family'] = self.testData['SibSp'] + self.testData['Parch']
+
+
+    def SexPclass(self):
+        self.trainData['Sex'] = self.trainData['Sex'].astype(int)
+        self.testData['Sex'] = self.testData['Sex'].astype(int)
+
+        self.trainData['Pclass'] = self.trainData['Pclass'].astype(int)
+        self.testData['Pclass'] = self.testData['Pclass'].astype(int)
+
+        self.trainData.loc[self.trainData['Sex'] == 0, 'SexPclass'] = self.trainData.loc[self.trainData['Sex'] == 0, 'Pclass']
+        self.trainData.loc[self.trainData['Sex'] == 1, 'SexPclass'] = self.trainData.loc[self.trainData['Sex'] == 1, 'Pclass'] + 3
+
+        self.testData.loc[self.testData['Sex'] == 0, 'SexPclass'] = self.testData.loc[self.testData['Sex'] == 0, 'Pclass']
+        self.testData.loc[self.testData['Sex'] == 1, 'SexPclass'] = self.testData.loc[self.testData['Sex'] == 1, 'Pclass'] + 3
+
+
+    def SexAgeBin(self):
+        self.trainData.loc[self.trainData['Sex'] == 0, 'SexAge'] = self.trainData.loc[self.trainData['Sex'] == 0, 'Bin_Age']
+        self.testData.loc[self.testData['Sex'] == 0, 'SexAge'] = self.testData.loc[self.testData['Sex'] == 0, 'Bin_Age']
+
+        self.trainData.loc[self.trainData['Sex'] == 1, 'SexAge'] = self.trainData.loc[self.trainData['Sex'] == 1, 'Bin_Age'] + 5
+        self.testData.loc[self.testData['Sex'] == 1, 'SexAge'] = self.testData.loc[self.testData['Sex'] == 1, 'Bin_Age'] + 5
 
 
     def printNaNs(self):
